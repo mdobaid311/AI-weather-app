@@ -82,6 +82,7 @@ const Home = () => {
     <div className="app__main app__flex">
       <div className="app__main-box">
         <div className="app__main-left">
+            <div className="app__main-alan"><h3>Try saying: "What's it like in Mumbai?"</h3></div>
           <div className="app__main-left-content app__flex">
             <div className="temperature">
               <h1>{weatherData.temp}°</h1>
