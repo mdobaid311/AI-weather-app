@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
+import alanBtn from "@alan-ai/alan-sdk-web";
 import moment from "moment";
-import "./Home.scss";
 import { WiNightCloudy } from "react-icons/wi";
 import { BsSearch } from "react-icons/bs";
+
+import "./Home.scss";
 
 const Home = () => {
   const [weatherData, setWeatherData] = useState({});
@@ -15,6 +17,41 @@ const Home = () => {
   ]);
   const locationInputRef = useRef();
 
+  const ALAN_API_KEY =
+    "b250ce8f251595cb5ab11bc67ea35ff42e956eca572e1d8b807a3e2338fdd0dc";
+
+  useEffect(() => {
+    const alanButton = alanBtn({
+      key: "b250ce8f251595cb5ab11bc67ea35ff42e956eca572e1d8b807a3e2338fdd0dc/stage",
+      onCommand: ({ command, data }) => {
+        if (command === "go:back") {
+          // Call the client code that will react to the received command
+        } else if (command === "weatherData") {
+          console.log(data);
+          const time = moment().utcOffset(`${data?.timezone}`).format("lll");
+          const weather = {
+            city: data?.name,
+            temp: Math.round(data?.main?.temp),
+            min_temp: data?.main?.temp_min,
+            max_temp: data?.main?.temp_max,
+            wind: data?.wind?.speed,
+            weather_type: data?.weather[0]?.main,
+            humidity: data?.main?.humidity,
+            feels_like: data?.main?.feels_like,
+            pressure: data?.main?.pressure,
+            time: time,
+            icon: data?.weather[0]?.icon,
+          };
+          setWeatherData(weather);
+          setLocations((oldLocations) => {
+            return [weather.city, ...oldLocations.slice(0, 3)];
+          });
+        }
+      },
+    });
+    alanButton.playText("Welcome Back");
+    alanButton.activate();
+  }, []);
   const getWeatherData = async () => {
     const res = await fetch(
       `http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=0efae17121ccdfd4ce7ddb5ef38cfe5a`
